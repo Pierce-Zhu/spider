@@ -112,10 +112,6 @@ module.exports = function(router) {
                     }
                     logger.info('data...........', dataArr.length);
                     logger.info("records..........", records);
-                    // if(dataArr[0][0] == '没有数据记录！') {
-                    //     logger.info('没有数据记录！');
-                    //     return false;
-                    // }
                     if(records == 0) {
                         logger.info('没有数据记录！');
                         res.send('采购验收入库单数据插入失败');
@@ -253,7 +249,6 @@ module.exports = function(router) {
             'mainForm:j_idt65:pageNumber':1,
             'javax.faces.ViewState':'deYjOr7eVwyASFQsXoSucAvoFFgtJT3bP1ev1GUjbrNNQRiKz1IzqA5JXaAdzkEoPnr9rXH2WVRckOptu/OZroEmS0jMkZxSbNEXNDJ41cNYeySQtaOZ3VA31khWjTYUP5pjHWv9Ce+WGTG331MOzXAE1wSgU/Yf6Ly28JqObZHajmPgRCDe1bO1ru'
         }
-        // logger.info('cond..........', cond);
         var params = cond.formData.toString();
         logger.info('params..........', params);
         // request(cond, function(err, rs, body) {
