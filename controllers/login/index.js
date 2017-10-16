@@ -13,6 +13,7 @@ var request = require('request');
 var myhttp = require('../../lib/myhttp');
 var common = require('../../lib/common');
 var cookDb = require('../../models/cookies');
+var dataService = require('../../service/getData');
 
 // var common = require('../../../lib/common');
 
@@ -25,49 +26,52 @@ module.exports = function(router) {
 	//进入平台登录页,获取cookie
 	router.get('/loginPage', function(req, res) {
 		var url = 'http://saas.gooddrug.cn/views/home/login.views';
-		myhttp.get_cookie(urlLogin, function(result) {
-			var cookieTemp = result.cookie[0].split(";")[0].split('=')[1];
-			// var cookieTemp = 'JSESSIONID=EE1D1D1F801492D089DE55A8477869D0';
-			logger.info('cookieTemp......', cookieTemp);
-            var params = {
-            	'javax.faces.partial.ajax':'true',
-            	'javax.faces.source':'j_idt18',
-				'javax.faces.partial.execute':'@all',
-				'javax.faces.partial.render':'messages',
-				'j_idt18': 'j_idt18',
-            	'loginform':'loginform',
-            	'appId_focus':'',
-                'appId_input': '13',  //选择总部系统
-                "user": 'admin20030',
-                "Password": '000000',
-                'code': '',	
-                'javax.faces.ViewState': 'cRzmYgqBAzKJ+Z+OrLIFC34QHXBBA3eF183w/qxLlM3WeGz6CUvKXeJaraKL7mEBCjsNLNOfl/jTsHh/LLFFDLg3pmCtI21xCEne3lA2NEs0Z+U+ADt3kEyvt1clQd61Ta651PzM3U7IkwH5QhSvVjL1RwjqpiFaOqpWEnpndoAaibqjyW1tjMcWKyuJ32G53yvFtWlVAEe4i93LCjScgxXzJHx/dts7L9yXGeKt8dbgF78o395cC4AoIp0WaiSUnztvNNamM5o0rkX92AvCUM/vyUPR5jMTORiTVXai5hReTYs1kt/XERCAQKtGqGGT6qFn2lyJGDml0Yfc5X4I2sryZsESc7STpYrAyGoKGsRJ+NMz50n5NQPC77KVvKJWDDw71OoSg3lqMLrEUfzoND7jz+d0FHmEq2Uis8Ijk1E+wUFQkHso/YfMHvbJxDrNm/3gv3VfumJDJpCy1DQectjlau8MVvRA5veQefl2CqhFhYe7pBfvQQZ6DIyFBrHw6G3XkmzAAUYHgMnnVuOFhqPUSDhKuOnTEvXN6WXyIoUenE5D4g6zW9P9b6twE0eaUjtf29Ic/8tkujIQW9DQJo+Dc+b8PJhpt3azMT4gBh87yjPm+iQyvKUwl/RSVpz90tZUyLuXrEX/biizF1FKQ0LaKjhH7YVpp13SsIjdzuBXecdWQ6SzOWim0w3ZZl1ylk9OIDbNk26grSGOFSRp3Q5jF7Fkvej95z8zAbhIZ8JjJ8o6VovNvS8TYEvuOdL1sI0l1pogSYsyh5WW4MKx897mvyvXj3uNZxtdRGzF4BOXDzODKSzSBxLJJZrT2mudsSndkn1B8gOeZRbVfjD9hyoOAnE3ZNEuMMQE6xD/nGVhQfpVwwaYZ3NK8JpzoTWNWzpP7T2vR2ijdk++VvoxAeNStSjaYD4mpazCNtDutNXDftnCUd+nckMlkikbqQ52MNiSjuomgD5WvFbSkLREEJSeSiNQGSAjDaBQpsOZaV4miSRdjNkniUsb0I8rJS0GLrBI5DuyXlsOn4I39jC0Y94Rzxfu1pldZrBTcBSYK/eHrjT484VY75rDMqZYfds81Cp3bJoZ4WzIk5VONZPrdfdk5m5rR4OCvRqGzSNLjpUSFajbXqMXY9FnOVaK7y4X6d9I0FNlRkwJ/fpB0bgWrMXCGsksHBb6xOnn/0AMCkP7l4Xy9nPWPh6feDsrMhrb9oi93/n9LkcqdsxN5AfElpLlyKlP2cY3WV+icITMDxPH1vmDgQi9PvWkQtJy3F2mGnirQOHHr41stGWW6F1IDCDKAQXjmAxjzHogzrbMtBQ='
-            }
-    		myhttp._post(urlLogin, params, cookieTemp, function(data) {
-    			logger.info('cookie data>>>>', data.cookie[0].split(";")[0]);
-    			var params = {
-					host: host,
-					time: moment().format('YYYY-MM-DD HH:mm:ss'),
-					JSESSIONID: data.cookie[0].split(";")[0],
-					// JSESSIONID: '713867ACF2FD4DFD29064591D866413B.pro_rtl_1'
-				}
-				cookDb.remove({'host': host},function(err){
-	               	if(err){
-	                    logger.error('err in delete cookie->', err);
-	                    res.send(err1)
-	              	 }else{
-	                    cookDb.create(params,function(err2){
-	                        if(err2){
-	                            logger.error('err in save cookie->', err2);
-	                            res.send(err2);
-	                            return false;
-	                        }
-	                        res.send('登陆成功');
-	                    })
-	                }
-	            })
-    		});
-		});
+		dataService.getViewState(urlLogin, function(viewState) {
+            logger.info("loginPage  viewState>>>>>>>>>>>>>>>>>>>", viewState);
+	        myhttp.get_cookie(urlLogin, function(result) {
+				var cookieTemp = result.cookie[0].split(";")[0].split('=')[1];
+				// var cookieTemp = 'JSESSIONID=EE1D1D1F801492D089DE55A8477869D0';
+				logger.info('cookieTemp......', cookieTemp);
+	            var params = {
+	            	'javax.faces.partial.ajax':'true',
+	            	'javax.faces.source':'j_idt18',
+					'javax.faces.partial.execute':'@all',
+					'javax.faces.partial.render':'messages',
+					'j_idt18': 'j_idt18',
+	            	'loginform':'loginform',
+	            	'appId_focus':'',
+	                'appId_input': '13',  //选择总部系统
+	                "user": 'admin20030',
+	                "Password": '000000',
+	                'code': '',	
+	                'javax.faces.ViewState': viewState,
+	            }
+	    		myhttp._post(urlLogin, params, cookieTemp, function(data) {
+	    			logger.info('cookie data>>>>', data.cookie[0].split(";")[0]);
+	    			var params = {
+						host: host,
+						time: moment().format('YYYY-MM-DD HH:mm:ss'),
+						JSESSIONID: data.cookie[0].split(";")[0],
+						// JSESSIONID: '713867ACF2FD4DFD29064591D866413B.pro_rtl_1'
+					}
+					cookDb.remove({'host': host},function(err){
+		               	if(err){
+		                    logger.error('err in delete cookie->', err);
+		                    res.send(err1)
+		              	 }else{
+		                    cookDb.create(params,function(err2){
+		                        if(err2){
+		                            logger.error('err in save cookie->', err2);
+		                            res.send(err2);
+		                            return false;
+		                        }
+		                        res.send('登陆成功');
+		                    })
+		                }
+		            })
+	    		});
+			});    
+        })
 	});
 
 	//登录服务平台获取门店订单信息

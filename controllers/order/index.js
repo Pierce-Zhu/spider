@@ -17,8 +17,9 @@ var myHttp = require('../../lib/myhttp');
 module.exports = function(router) {
 
     var host = 'saas.gooddrug.cn';
-    var url_order = 'http://saas.gooddrug.cn/views/center/inv/purIn/list.views';//采购验收入库单查询url
+    var urlBuy = 'http://saas.gooddrug.cn/views/center/inv/purIn/list.views';//采购验收入库单查询url
     var urlProduct = 'http://saas.gooddrug.cn/views/center/doc/god/list.views'; //资料-》商品
+    var urlJfywmx = 'http://saas.gooddrug.cn/views/center/inv/rep/inoutItemRep.views';  //仓库进发业务明细表
 
     //进入门店订单页
     router.get('/orderPage', function(req, res) {
@@ -81,8 +82,8 @@ module.exports = function(router) {
                     return false;
                 }
                 var tempCookie = result.JSESSIONID;
-                tempCookie = 'JSESSIONID=CC2A132E1B423B8F34FEC1D0AE3E183E';
-                logger.info('tempCookie', tempCookie);
+                tempCookie = 'JSESSIONID=0821985C7266B78502DC4D928CABAC2D';
+                logger.info('tempCookie in productInfo', tempCookie);
                 var params = {
                     'javax.faces.partial.ajax':'true',
                     'javax.faces.source':"mainForm:j_idt44",
@@ -92,7 +93,7 @@ module.exports = function(router) {
                     'mainForm':'mainForm',
                     'mainForm:j_idt18': '',
                     'mainForm:select': '-1',
-                    'mainForm:j_idt25': '60',   //化妆品
+                    'mainForm:j_idt25': '50',   //商品类型，50-食品，60化妆品70-其他用品，90消毒产品
                     'mainForm:j_idt30': '',
                     'mainForm:j_idt35': '',
                     'mainForm:j_idt40_input': '',
@@ -122,7 +123,7 @@ module.exports = function(router) {
                         // logger.info('dataarr element detail', it);
                         var arrTemp = [it[5], it[6], it[7]];
                         //不同商品可能对应同一个商品代码
-                        logger.info('arrTemp element detail', arrTemp);
+                        // logger.info('arrTemp element detail', arrTemp);
                         Mysql.queryInsert(sql, arrTemp, function(errInsert, row, field) {
                             callback(errInsert);
                         })
@@ -140,73 +141,79 @@ module.exports = function(router) {
         
     });
 
-    //  仓库 》采购验收入库单信息   
-    // *****/views/center/inv/purIn/list.views
+    //  仓库 仓库进发业务明细表   
+    // *****/views/center/inv/rep/inoutItemRep.views
     router.get('/repoData', function(req, res) {
-        var searchParam = {
-            begDate: '2017-08-01',
-            endDate: '2017-080-01',
-            pageSize: '30',
-            type: 'ckrkd'        //查询类型
-        }
-        cookDb.findOne({'host': host}, function(err, result) {
-            if(err) {
-                logger.error('获取cookie失败，请登录', err);
-                res.send('获取cookie失败，请登录');
-                return false;
+        dataService.getViewState(urlJfywmx, function(viewState) {
+            // logger.info("repoData  viewState", viewState);
+            var searchParam = {
+                begDate: '2017-09-03',
+                endDate: '2017-09-03',
+                pageSize: '30',
+                // type: 'ckrkd'        //查询类型
             }
-            // var tempCookie = 'JSESSIONID=' + result.JSESSIONID;
-            var tempCookie = result.JSESSIONID;
-            tempCookie = 'JSESSIONID=EC5CB63112092BB97EC9E8BC2916196C';
-            logger.info('tempCookie', tempCookie);
-            var params = {
-                'javax.faces.partial.ajax':'true',
-                'javax.faces.source':"mainForm:headerContent:j_idt48",
-                // 'javax.faces.source':"mainForm:j_idt80:n_next",
-                'javax.faces.partial.execute': '@all',
-                'javax.faces.partial.render':'mainForm:listMain',
-                'mainForm:headerContent:j_idt48': 'mainForm:headerContent:j_idt48',
-                // 'mainForm:j_idt80:n_next':'mainForm:j_idt80:n_next',
-                'mainForm':'mainForm',
-                'mainForm:headerContent:j_idt20': '', 
-                'mainForm:headerContent:j_idt34_input' : searchParam.begDate,    
-                'mainForm:headerContent:j_idt36_input': searchParam.endDate,     
-                'mainForm:headerContent:j_idt40': '31',
-                'mainForm:j_idt49_selection': '',  
-                'mainForm:j_idt49_scrollState' :'0,0',
-                'mainForm:j_idt80:n_pageSize': searchParam.pageSize,        //每次上限为100条
-                'mainForm:j_idt80:pageNumber': '1',
-                //该参数会定时过期
-                'javax.faces.ViewState': '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'
-            };
+            dataService.getCookieNew(urlJfywmx, function(err, result) {
+                if(err) {
+                    logger.error('获取cookie失败', err);
+                    res.send('获取cookie失败，请登录');
+                    return false;
+                }
+                logger.info('result>>>>>>>>>>>>>>', result);
+                var tempCookie = result;
+                tempCookie = 'JSESSIONID=0821985C7266B78502DC4D928CABAC2D';
+                logger.info('tempCookie', tempCookie);
+                // return false;
+                var params = {
+                    'javax.faces.partial.ajax':'true',
+                    'javax.faces.source':"mainForm:headerContent:j_idt35",
+                    // 'javax.faces.source':"mainForm:j_idt80:n_next",
+                    'javax.faces.partial.execute': '@all',
+                    'javax.faces.partial.render':'mainForm:listMain',
+                    'mainForm:headerContent:j_idt35': 'mainForm:headerContent:j_idt35',
+                    // 'mainForm:j_idt80:n_next':'mainForm:j_idt80:n_next',
+                    'mainForm':'mainForm',
+                    'mainForm:headerContent:j_idt17': '', 
+                    'mainForm:headerContent:j_idt34_input' : searchParam.begDate,    
+                    'mainForm:headerContent:j_idt36_input': searchParam.endDate,     
+                    'mainForm:j_idt49_selection': '',  
+                    'mainForm:j_idt49_scrollState' :'0,0',
+                    'mainForm:j_idt80:n_pageSize': searchParam.pageSize,        //每次上限为100条
+                    'mainForm:j_idt80:pageNumber': '1',
+                    //该参数会定时过期
+                    'javax.faces.ViewState': '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'
+                };
 
-            dataService.getRepOrder(url_order, params, searchParam, tempCookie, function(er,dataArr, records) {
-                if(er) {
-                    logger.info("数据获取失败", er);
-                    res.send('数据获取失败');
-                    return false;
-                }
-                logger.info('data...........', dataArr.length);
-                logger.info("records..........", records);
-                if(dataArr[0][0] == '没有数据记录！') {
-                    logger.info('没有数据记录！');
-                    return false;
-                }
-                async.eachSeries(dataArr,function(it, callback){
-                    var sql = 'insert into reporder values(?,?,?,?,?,?,?,?)';
-                    Mysql.queryInsert(sql, it, function(errInsert, row, field) {
-                        callback(errInsert);
-                    })
-                }, function(errSql) {
-                    if(errSql) {
-                        logger.info("repOder insert err", errSql);
-                        res.send('采购验收入库单数据插入失败');
+                dataService.getRepOrder(urlJfywmx, params, searchParam, tempCookie, function(er,dataArr, records) {
+                    if(er) {
+                        logger.info("数据获取失败", er);
+                        res.send('数据获取失败');
                         return false;
                     }
-                    res.send('采购验收入库单数据保存成功');
+                    logger.info('data...........', dataArr.length);
+                    logger.info("records..........", records);
+                    if(records == 0) {
+                        logger.info('没有数据记录！');
+                        res.send('没有数据记录,采购验收入库单数据插入失败');
+                        return false;
+                    }
+                    async.eachSeries(dataArr,function(it, callback){
+                        var sql = 'insert into reporder values(?,?,?,?)';
+                        var arrTemp = [it[1],it[2], it[4], it[7]];
+                        Mysql.queryInsert(sql, it, function(errInsert, row, field) {
+                            callback(errInsert);
+                        })
+                    }, function(errSql) {
+                        if(errSql) {
+                            logger.info("repOder insert err", errSql);
+                            res.send('采购验收入库单数据插入失败');
+                            return false;
+                        }
+                        res.send('采购验收入库单数据保存成功');
+                    });
                 });
-            });
+            }); 
         });
+        
     });
 
     //
