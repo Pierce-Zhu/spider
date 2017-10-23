@@ -317,8 +317,10 @@ module.exports = function(router) {
                     res.send('获取cookie失败，请登录');
                     return false;
                 }
+                logger.info("result cookie in return getCookieNew>>>>>>>", result);
+                return false;
                 var tempCookie = result;
-                tempCookie = 'JSESSIONID=6EE80AB416666CBF39324249B2296682';
+                tempCookie = 'JSESSIONID=58846E3A63B66337A110BF1B5FEC6A7F';
                 logger.info('tempCookie', tempCookie);
                 var params = {
                     'javax.faces.partial.ajax':'true',
@@ -375,7 +377,7 @@ module.exports = function(router) {
 
 
 
-    //提交表单，获取订单信息 使用request 
+    //获取订单信息 使用request 
     //no use
     router.get('/orders/data', function(req, res) {
         cond['method'] = 'post';

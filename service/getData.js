@@ -12,7 +12,7 @@ var URL = require("url");
 var http = require("http");
 var https = require("https");
 
-//门店进发业务明细 data
+//门店进发业务明细等等获取data data
 var getRepOrder = function(url, params,searchParam, cookie, callback) {
     myhttp._post(url, params, cookie, function(data) {
         var dataArr = [];  //需要插入的数据
@@ -91,7 +91,6 @@ var getRepOrder = function(url, params,searchParam, cookie, callback) {
 
 
 //资料商品数据
-// data
 var getZlsp = function(url, params,searchParam, cookie, callback) {
     myhttp._post(url, params, cookie, function(data) {
         var dataArr = [];  //需要插入的数据
@@ -160,7 +159,8 @@ var getCookieNew = function(url, cb) {
 
         cookie = res.headers['set-cookie'];
         cookie = cookie[0].split(";")[0];
-        logger.info('cookie by page .>>>>>>', cookie);
+        logger.info("getCookieNew data >>>>>>>>>>>>>>>", res);
+        logger.info('cookie by page .>>>>>>>>>>>>>>>>>', cookie);
 
         res.on('end', function() {
             var cookie_ = cookie;
@@ -201,7 +201,6 @@ var dataParse = function(data, dataArr, type, cb) {
         var indexDataNew = $('table').eq(0).find('td.ui-datatable-frozenlayout-left').find('div.ui-datatable-scrollable-body').find('tbody').find('tr');
         //content
         var contentDataNew = $('table').eq(0).find('td.ui-datatable-frozenlayout-right').find('div.ui-datatable-scrollable-body').find('tr');
-        // logger.info('contentDataNew.length in dataParse', contentDataNew.eq(0).find('td').eq(9));
         for(var i = 0; i < indexDataNew.length; i++) {
             var dataTemp = [];
             if(type === 'zlsp') {
